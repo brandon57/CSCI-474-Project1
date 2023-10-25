@@ -30,7 +30,9 @@ int display(int text)
                     printf("Not valid input\nTry again");
                 }
                 else
-                {}
+                {
+                    
+                }
             }
             break;
         case 2:
