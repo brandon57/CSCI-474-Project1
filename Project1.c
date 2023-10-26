@@ -30,15 +30,7 @@ int display(int text)
     {
         case 1:
             printf("How many processes do you want to create? \n1\n2\n4\n");
-            while(1)
-            {
-                if(scanf("%d", &input) <= 0 || scanf("%d", &input) == 3 || scanf("%d", &input) > 4)
-                {
-                    printf("Not valid input\nTry again");
-                }
-                else
-                {}
-            }
+            input = input_Check(1);
             break;
         case 2:
             printf("Which file do you want to parse through? \n1. file1\n2. file2\n3. file3\n");
