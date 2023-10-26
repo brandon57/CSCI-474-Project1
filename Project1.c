@@ -15,6 +15,7 @@ int main()
     //printf("%d\n", num_proc);
     num_file = display(2);
     //printf("%d\n", num_file);
+    //test
     
     
     
