@@ -8,16 +8,55 @@ int input_Check(int option);
 
 int main()
 {
+    int size = 3;
+    FILE* file;
+    char temp[size];
+    int lines = 0;
     int num_proc = 0;
     int num_file = 0;
 
     num_proc = display(1);
-    //printf("%d\n", num_proc);
     num_file = display(2);
-    //printf("%d\n", num_file);
-    //test
-    
-    
+
+    //Selects what file to open based on what user picked
+    switch(num_file)
+    {
+        case 1:
+            file = fopen("file1.dat", "r");
+            break;
+        case 2:
+            file = fopen("file2.dat", "r");
+            break;
+        case 3:
+            file = fopen("file3.dat", "r");
+            break;
+    }
+
+
+
+    //Counts how many lines are in the file
+    while(fscanf(file, "%s", temp) == 1)
+    {
+        lines++;
+    }
+    printf("There are %d lines in the file you chose\n", lines);
+
+    //Moves the pointer back to the beginning of the file
+    rewind(file);
+
+    //This creates the the number of processes the user selected
+    for(int i = 0; i < num_proc; i++)
+    {
+        // if()
+        // {
+
+        // }
+    }
+
+
+
+
+
     
 }
 
