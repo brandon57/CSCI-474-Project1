@@ -2,12 +2,15 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
-int display();
+int display(int text);
 int input_Check(int option);
 
 int main()
 {
+    clock_t start_time, end_time;
+    double total_time;
     int size = 3;
     FILE* file;
     char temp[size];
@@ -32,14 +35,15 @@ int main()
             break;
     }
 
-
-
     //Counts how many lines are in the file
+    start_time = clock();
     while(fscanf(file, "%s", temp) == 1)
     {
         lines++;
     }
-    printf("There are %d lines in the file you chose\n", lines);
+    end_time = clock();
+    total_time = (double) (end_time - start_time) / CLOCKS_PER_SEC;
+    printf("There are %d lines in the file you chose\nIt took %lf seconds\n", lines, total_time);
 
     //Moves the pointer back to the beginning of the file
     rewind(file);
@@ -55,7 +59,11 @@ int main()
 
 
 
-
+    //parent waits for children to be done
+    for(int i = 0; i < num_proc; i ++)
+    {
+        
+    }
 
     
 }
