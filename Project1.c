@@ -14,9 +14,11 @@ int main()
     int size = 3;
     FILE* file;
     char temp[size];
-    int lines = 0;
+    int total_lines = 0 , lines = 0;
     int num_proc = 0;
     int num_file = 0;
+
+    //This is the part of the code where the 
 
     num_proc = display(1);
     num_file = display(2);
@@ -39,24 +41,33 @@ int main()
     start_time = clock();
     while(fscanf(file, "%s", temp) == 1)
     {
-        lines++;
+        total_lines++;
     }
     end_time = clock();
     total_time = (double) (end_time - start_time) / CLOCKS_PER_SEC;
-    printf("There are %d lines in the file you chose\nIt took %lf seconds\n", lines, total_time);
+    lines = total_lines / num_proc;
+    printf("There are %d lines in the file you chose\nIt took %lf seconds\n", total_lines, total_time);
 
     //Moves the pointer back to the beginning of the file
     rewind(file);
 
+    //This part of the code is where the main process sets up the processes
+
+    //Creates the exact number of pipes needed
+    int fds[num_proc][2];
+    for(int i = 0; i < num_proc; i++)
+    {
+        pipe(fds[i]);
+    }
+
     //This creates the the number of processes the user selected
     for(int i = 0; i < num_proc; i++)
     {
-        // if()
-        // {
-
-        // }
+        if(fork() == 0)
+        {
+            break;
+        }
     }
-
 
 
     //parent waits for children to be done
@@ -67,6 +78,9 @@ int main()
 
     
 }
+
+//Creates the pipes
+
 
 //Asks the user how many processes they want to make
 //Also asks which file they want to go through
