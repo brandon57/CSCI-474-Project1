@@ -67,20 +67,28 @@ int main()
     long proc_result;
     long long results[num_proc];
     int temp = 0;
-    int start, end = 0;
+    unsigned int start, end , ptr = 0;
     start_time = clock();
     for(int i = 0; i < num_proc; i++)
     {
+        start = (lines_proc * i);
+        end = (lines_proc * i) + lines_proc;
+        ptr = start;
         if(fork() == 0)
         {
-            //read(fds[i][0], &start, sizeof(int));
-            //read(fds[i][0], &end, sizeof(int));
-            fseek(file, (lines_proc * i), ((lines_proc * i) + lines_proc));
+            printf("Start: %d End: %d\n", start, end);
+            //printf("Seek_cur: %d\n", SEEK_CUR);
+            fseek(file, 0, start);
             printf("%d\n", i);
-            while(fscanf(file, "%d", &temp) == 1)
+            fflush(stdout);
+            printf("This is where the current pointer is located: %d\n", ptr);
+            while((fscanf(file, "%d", &temp) == 1) && (ptr != end + 1))
             {
+                 ptr++;
                  proc_result = proc_result + temp;
             }        
+            printf("This is where the current point located now: %d\n", ptr);
+            fflush(stdout);
             write(fds[i][1], &proc_result, sizeof(long));
             //printf("%s\n", temp);
             _exit(0);
@@ -121,8 +129,6 @@ int num_lines(void *file)
     }
     return total_lines;
 }
-
-//Creates the pipes
 
 
 //Asks the user how many processes they want to make
