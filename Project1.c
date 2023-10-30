@@ -19,7 +19,6 @@ int main()
     clock_t start_time, end_time;
     double total_time;
     FILE* file;
-    
     int num_proc = 0;
     int num_file = 0;
     int lines_proc = 0;
@@ -74,23 +73,33 @@ int main()
         start = (lines_proc * i);
         end = (lines_proc * i) + lines_proc;
         ptr = start;
+        if(i != 0)
+        {
+            fseek(file, 1, SEEK_CUR);
+        }
+        else
+        {
+            fseek(file, 0, SEEK_CUR);
+        }
+        printf("Start: %d, End: %d\n", start, end);
         if(fork() == 0)
         {
-            printf("Start: %d End: %d\n", start, end);
-            //printf("Seek_cur: %d\n", SEEK_CUR);
-            fseek(file, 0, start);
+            //rewind(file);
             printf("%d\n", i);
-            fflush(stdout);
+            //printf("Start: %d End: %d\n", start, end);
             printf("This is where the current pointer is located: %d\n", ptr);
+            printf("value of temp: %d\n", temp);
             while((fscanf(file, "%d", &temp) == 1) && (ptr != end + 1))
             {
                  ptr++;
                  proc_result = proc_result + temp;
-            }        
+            }
+            rewind(file);
+            printf("value of temp: %d\n", temp);   
             printf("This is where the current point located now: %d\n", ptr);
-            fflush(stdout);
             write(fds[i][1], &proc_result, sizeof(long));
-            //printf("%s\n", temp);
+            close(fds[i][1]);
+            close(fds[i][0]);
             _exit(0);
         }
     }
@@ -98,8 +107,6 @@ int main()
     //parent waits for children to be done
     for(int i = 0; i < num_proc; i ++)
     {
-        //write(fds[i][1], (lines_proc * i), sizeof(int));
-        //write(fds[i][1], (lines_proc * i), sizeof(int));
         read(fds[i][0], &results[i], sizeof(long long));
     }
     end_time = clock();
@@ -107,7 +114,6 @@ int main()
     total_time = (double) (end_time - start_time) / CLOCKS_PER_SEC;
     
     printf("It took this long: %f\n", total_time);
-    //wait(NULL);
     
     for(int i = 0; i < num_proc; i++)
     {
@@ -121,9 +127,9 @@ int main()
 //Counts the amount of lines in the file
 int num_lines(void *file)
 {
-    char temp[3];
+    int temp = 0;
     int total_lines = 0;
-    while(fscanf(file, "%s", temp) == 1)
+    while(fscanf(file, "%d", &temp) == 1)
     {
         total_lines++;
     }
