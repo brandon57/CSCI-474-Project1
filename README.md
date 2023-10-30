@@ -1,5 +1,7 @@
 # CSCI-474-Project1
 
+Note: This program can only run on Linux Distros. 
+
 # These are the requirments for the project
 
 <p align="center">
