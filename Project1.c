@@ -65,7 +65,7 @@ int main()
     }
 
     //This creates the the number of processes the user selected
-    long proc_result = 0;
+    long long proc_result = 0;
     long long results[num_proc];
     long long answer = 0;
     
@@ -73,7 +73,7 @@ int main()
     start_time = clock();
     for(int i = 0; i < num_proc; i++)
     {
-        rewind(file);
+        //rewind(file);
         //ptr = start;
         
         PIDS[i] = fork();
@@ -82,8 +82,8 @@ int main()
         {
             printf("Process %d is starting\n", i + 1);
             start = (lines_proc * i * 5);
-            end = start + lines_proc;
-            //printf("Start: %d, End: %d\n", start, end);
+            end = start + (lines_proc * 5);
+            printf("Start: %d, End: %d\n", start, end);
             int temp = 0;
             int test = 0;
             fseek(file, start, SEEK_SET);
@@ -104,32 +104,24 @@ int main()
            // printf("value of temp: %d\n", temp);
             for(int j = 0; j < lines_proc; j++)
             {
+                temp = 0; 
                 if(fscanf(file, "%d", &temp) == 1)
                 {
-                    printf("Process %d: ptr: %d, value: %d\n", i+1, ptr, temp);
+                    // if(j == lines_proc - 1)
+                    // {
+                    //     printf("Process %d: ptr: %d, value: %d, j:%d\n", i+1, ptr, temp, j);
+                    // }
+                    if(i == 1 && (j >= 1634 && j <= 1649))
+                    {
+                        printf("Process %d: ptr: %d, value: %d, j:%d\n", i+1, ptr, temp, j);
+                    }
                     ptr++;
                     proc_result = proc_result + temp;
                 }
 
+                fflush(stdout);
+
             }
-            
-            // while(fscanf(file, "%d", &temp) == 1 && test != lines_proc)
-            // {
-            //      //temp = 0;
-            //      //;
-            //     //  if(i == 1)
-            //     //  {
-            //     //     printf("%d %d\n", ptr, temp);
-            //     //     //t1++;
-            //     //  }
-            //      ptr++;
-            //      test++;
-            //      proc_result = proc_result + temp;
-            //      //fflush(stdin);
-            // }
-            //rewind(file);
-           // printf("value of temp: %d\n", temp);   
-            //printf("This is where the current point located now: %d %d\n", ptr, test);
             write(fds[i][1], &proc_result, sizeof(long));
             close(fds[i][1]);
             close(fds[i][0]);
