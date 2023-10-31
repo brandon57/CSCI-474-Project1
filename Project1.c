@@ -10,7 +10,7 @@ int input_Check(int option);
 int num_lines(void *file);
 
 //Global variables
-long long answer = 0;
+
 
 
 
@@ -30,6 +30,7 @@ int main()
     num_proc = display(1);
     num_file = display(2);
 
+    pid_t PIDS[num_proc];
 
     //Selects what file to open based on what user picked
     switch(num_file)
@@ -52,7 +53,7 @@ int main()
     printf("There are %d lines in the file you chose\n", total_lines);
 
     //Moves the pointer back to the beginning of the file
-    rewind(file);
+    
 
     //This part of the code is where the main process sets up the processes
 
@@ -64,69 +65,94 @@ int main()
     }
 
     //This creates the the number of processes the user selected
-    long proc_result;
+    long proc_result = 0;
     long long results[num_proc];
+    long long answer = 0;
     
-    int test = 0;
     unsigned int start, end , ptr = 0;
     start_time = clock();
     for(int i = 0; i < num_proc; i++)
     {
-        start = (lines_proc * i);
-        end = (lines_proc * i) + lines_proc;
-        ptr = start;
+        rewind(file);
+        //ptr = start;
         
-        
-        // if(i != 0)
-        // {
-        //     fseek(file, 1, SEEK_CUR);
-        // }
-        // else
-        // {
-        //     fseek(file, 0, SEEK_CUR);
-        // }
-        printf("Start: %d, End: %d\n", start, end);
-        if(fork() == 0)
+        PIDS[i] = fork();
+        //int PID = fork(); 
+        if(PIDS[i] == 0)
         {
+            printf("Process %d is starting\n", i + 1);
+            start = (lines_proc * i * 5);
+            end = start + lines_proc;
+            //printf("Start: %d, End: %d\n", start, end);
             int temp = 0;
+            int test = 0;
             fseek(file, start, SEEK_SET);
-            // if(i == 0)
-            // {
-            //     fseek(file, start, SEEK_SET);
-            // }
-            // else
-            // {
-            //     fseek(file, start, SEEK_SET);
-            //     end++;
-            // }
-            //fscanf(file, "%d", &temp);
-            //rewind(file);
-            printf("%d\n", i);
-            //printf("Start: %d End: %d\n", start, end);
-            printf("This is where the current pointer is located: %d\n", ptr);
             
-            printf("value of temp: %d\n", temp);
-            while((fscanf(file, "%d", &temp) == 1) && (ptr != end))
+            if(i == 0)
             {
-                 //printf("%d\n", temp);
-                 ptr++;
-                 test++;
-                 proc_result = proc_result + temp;
+                ptr++;
             }
+            else
+            {
+                ptr = (start / (5*i)) + 1;
+            }
+            
+           // printf("%d\n", i);
+            //printf("Start: %d End: %d\n", start, end);
+           // printf("This is where the current pointer is located: %d\n", ptr);
+            
+           // printf("value of temp: %d\n", temp);
+            for(int j = 0; j < lines_proc; j++)
+            {
+                if(fscanf(file, "%d", &temp) == 1)
+                {
+                    printf("Process %d: ptr: %d, value: %d\n", i+1, ptr, temp);
+                    ptr++;
+                    proc_result = proc_result + temp;
+                }
+
+            }
+            
+            // while(fscanf(file, "%d", &temp) == 1 && test != lines_proc)
+            // {
+            //      //temp = 0;
+            //      //;
+            //     //  if(i == 1)
+            //     //  {
+            //     //     printf("%d %d\n", ptr, temp);
+            //     //     //t1++;
+            //     //  }
+            //      ptr++;
+            //      test++;
+            //      proc_result = proc_result + temp;
+            //      //fflush(stdin);
+            // }
             //rewind(file);
-            printf("value of temp: %d\n", temp);   
-            printf("This is where the current point located now: %d %d\n", ptr, test);
+           // printf("value of temp: %d\n", temp);   
+            //printf("This is where the current point located now: %d %d\n", ptr, test);
             write(fds[i][1], &proc_result, sizeof(long));
             close(fds[i][1]);
             close(fds[i][0]);
+            printf("Process %d is finished\n", i + 1);
             _exit(0);
         }
-        //fseek(file, 200, SEEK_SET);
+        else if(PIDS[i] == -1)
+        {
+            printf("An error has occurred creating a process\n");
+            
+        }
     }
     //parent waits for children to be done
+    for(int i = 0; i < num_proc; i++)
+    {
+        wait(NULL);
+    }
+    
     for(int i = 0; i < num_proc; i ++)
     {
         read(fds[i][0], &results[i], sizeof(long long));
+        close(fds[i][0]);
+        close(fds[i][1]);
     }
     end_time = clock();
     wait(NULL);
