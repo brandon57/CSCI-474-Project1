@@ -18,6 +18,7 @@ int main()
 {
     clock_t start_time, end_time;
     double total_time;
+    
     FILE* file;
     int num_proc = 0;
     int num_file = 0;
@@ -65,7 +66,8 @@ int main()
     //This creates the the number of processes the user selected
     long proc_result;
     long long results[num_proc];
-    int temp = 0;
+    
+    int test = 0;
     unsigned int start, end , ptr = 0;
     start_time = clock();
     for(int i = 0; i < num_proc; i++)
@@ -73,37 +75,54 @@ int main()
         start = (lines_proc * i);
         end = (lines_proc * i) + lines_proc;
         ptr = start;
-        if(i != 0)
-        {
-            fseek(file, 1, SEEK_CUR);
-        }
-        else
-        {
-            fseek(file, 0, SEEK_CUR);
-        }
+        
+        
+        // if(i != 0)
+        // {
+        //     fseek(file, 1, SEEK_CUR);
+        // }
+        // else
+        // {
+        //     fseek(file, 0, SEEK_CUR);
+        // }
         printf("Start: %d, End: %d\n", start, end);
         if(fork() == 0)
         {
+            int temp = 0;
+            fseek(file, start, SEEK_SET);
+            // if(i == 0)
+            // {
+            //     fseek(file, start, SEEK_SET);
+            // }
+            // else
+            // {
+            //     fseek(file, start, SEEK_SET);
+            //     end++;
+            // }
+            //fscanf(file, "%d", &temp);
             //rewind(file);
             printf("%d\n", i);
             //printf("Start: %d End: %d\n", start, end);
             printf("This is where the current pointer is located: %d\n", ptr);
+            
             printf("value of temp: %d\n", temp);
-            while((fscanf(file, "%d", &temp) == 1) && (ptr != end + 1))
+            while((fscanf(file, "%d", &temp) == 1) && (ptr != end))
             {
+                 //printf("%d\n", temp);
                  ptr++;
+                 test++;
                  proc_result = proc_result + temp;
             }
-            rewind(file);
+            //rewind(file);
             printf("value of temp: %d\n", temp);   
-            printf("This is where the current point located now: %d\n", ptr);
+            printf("This is where the current point located now: %d %d\n", ptr, test);
             write(fds[i][1], &proc_result, sizeof(long));
             close(fds[i][1]);
             close(fds[i][0]);
             _exit(0);
         }
+        //fseek(file, 200, SEEK_SET);
     }
-
     //parent waits for children to be done
     for(int i = 0; i < num_proc; i ++)
     {
