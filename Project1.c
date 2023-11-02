@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <time.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
 int display(int text);
 int input_Check(int option);
@@ -36,13 +37,13 @@ int main()
     switch(num_file)
     {
         case 1:
-            file = fopen("file1.dat", "r");
+            file = fopen("file1.dat", "rb");
             break;
         case 2:
-            file = fopen("file2.dat", "r");
+            file = fopen("file2.dat", "rb");
             break;
         case 3:
-            file = fopen("file3.dat", "r");
+            file = fopen("file3.dat", "rb");
             break;
     }
 
@@ -75,18 +76,20 @@ int main()
     {
         //rewind(file);
         //ptr = start;
-        
+        //fflush(stdin);
         PIDS[i] = fork();
         //int PID = fork(); 
         if(PIDS[i] == 0)
         {
+            //char num[6];
+            //setbuf(file, NULL);
             printf("Process %d is starting\n", i + 1);
             start = (lines_proc * i * 5);
             end = start + (lines_proc * 5);
             printf("Start: %d, End: %d\n", start, end);
             int temp = 0;
             int test = 0;
-            fseek(file, start, SEEK_SET);
+            
             
             if(i == 0)
             {
@@ -96,31 +99,31 @@ int main()
             {
                 ptr = (start / (5*i)) + 1;
             }
-            
-           // printf("%d\n", i);
-            //printf("Start: %d End: %d\n", start, end);
+           //printf("%d\n", i);
+           //printf("Start: %d End: %d\n", start, end);
            // printf("This is where the current pointer is located: %d\n", ptr);
-            
+           fseek(file, start, SEEK_SET);
            // printf("value of temp: %d\n", temp);
-            for(int j = 0; j < lines_proc; j++)
-            {
-                temp = 0; 
+           for(int j = 0; j < lines_proc; j++)
+           {
+                //temp = 0;
+                //ret = ;
+                //fgets(num, sizeof(num), file) != NULL
                 if(fscanf(file, "%d", &temp) == 1)
                 {
+                    //temp = atoi(num);
+                    //sscanf(num, "%d", &temp);
                     // if(j == lines_proc - 1)
                     // {
                     //     printf("Process %d: ptr: %d, value: %d, j:%d\n", i+1, ptr, temp, j);
                     // }
-                    if(i == 1 && (j >= 1634 && j <= 1649))
+                    if(i == 1)
                     {
-                        printf("Process %d: ptr: %d, value: %d, j:%d\n", i+1, ptr, temp, j);
+                        printf("Process %d: ptr: %d, value: %d, j:%d ftell: %ld\n", i+1, ptr, temp, j, ftell(file));
                     }
                     ptr++;
                     proc_result = proc_result + temp;
                 }
-
-                fflush(stdout);
-
             }
             write(fds[i][1], &proc_result, sizeof(long));
             close(fds[i][1]);
