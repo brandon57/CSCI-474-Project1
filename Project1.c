@@ -6,55 +6,34 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
+//Functions
 int display(int text);
 int input_Check(int option);
 int num_lines(void *file);
-
-//Global variables
-
-
-
+FILE* file_picked(int num_file);
 
 int main()
 {
     clock_t start_time, end_time;
     double total_time;
-    
-    FILE* file;
-    int num_proc = 0;
-    int num_file = 0;
-    int lines_proc = 0;
-    int total_lines = 0;
+    FILE *file;
+    int num_proc, num_file = 0, lines_proc = 0, total_lines = 0;
 
     //This is the part of the code where the 
-
     num_proc = display(1);
     num_file = display(2);
 
     pid_t PIDS[num_proc];
 
     //Selects what file to open based on what user picked
-    switch(num_file)
-    {
-        case 1:
-            file = fopen("file1.dat", "rb");
-            break;
-        case 2:
-            file = fopen("file2.dat", "rb");
-            break;
-        case 3:
-            file = fopen("file3.dat", "rb");
-            break;
-    }
+    file = file_picked(num_file);
 
     //Counts how many lines are in the file
     total_lines = num_lines(file);
     lines_proc = total_lines / num_proc;
     int file_result[total_lines];
+    fclose(file);
     printf("There are %d lines in the file you chose\n", total_lines);
-
-    //Moves the pointer back to the beginning of the file
-    
 
     //This part of the code is where the main process sets up the processes
 
@@ -67,101 +46,88 @@ int main()
 
     //This creates the the number of processes the user selected
     long long proc_result = 0;
-    long long results[num_proc];
     long long answer = 0;
-    
-    unsigned int start, end , ptr = 0;
+    long long results = 0;
+    unsigned int start, end;
     start_time = clock();
     for(int i = 0; i < num_proc; i++)
-    {
-        //rewind(file);
-        //ptr = start;
-        //fflush(stdin);
+    {   
         PIDS[i] = fork();
-        //int PID = fork(); 
         if(PIDS[i] == 0)
         {
-            //char num[6];
-            //setbuf(file, NULL);
             printf("Process %d is starting\n", i + 1);
+            file = file_picked(num_file);
             start = (lines_proc * i * 5);
             end = start + (lines_proc * 5);
-            printf("Start: %d, End: %d\n", start, end);
             int temp = 0;
-            int test = 0;
             
-            
-            if(i == 0)
+            fseek(file, start, SEEK_SET);
+            for(int j = 0; j < lines_proc; j++)
             {
-                ptr++;
-            }
-            else
-            {
-                ptr = (start / (5*i)) + 1;
-            }
-           //printf("%d\n", i);
-           //printf("Start: %d End: %d\n", start, end);
-           // printf("This is where the current pointer is located: %d\n", ptr);
-           fseek(file, start, SEEK_SET);
-           // printf("value of temp: %d\n", temp);
-           for(int j = 0; j < lines_proc; j++)
-           {
-                //temp = 0;
-                //ret = ;
-                //fgets(num, sizeof(num), file) != NULL
                 if(fscanf(file, "%d", &temp) == 1)
                 {
-                    //temp = atoi(num);
-                    //sscanf(num, "%d", &temp);
-                    // if(j == lines_proc - 1)
-                    // {
-                    //     printf("Process %d: ptr: %d, value: %d, j:%d\n", i+1, ptr, temp, j);
-                    // }
-                    if(i == 1)
-                    {
-                        printf("Process %d: ptr: %d, value: %d, j:%d ftell: %ld\n", i+1, ptr, temp, j, ftell(file));
-                    }
-                    ptr++;
                     proc_result = proc_result + temp;
                 }
             }
-            write(fds[i][1], &proc_result, sizeof(long));
+            write(fds[i][1], &proc_result, sizeof(long long));
             close(fds[i][1]);
             close(fds[i][0]);
             printf("Process %d is finished\n", i + 1);
+            fclose(file);
             _exit(0);
         }
         else if(PIDS[i] == -1)
         {
-            printf("An error has occurred creating a process\n");
-            
+            printf("An error has occurred creating a process\n");    
         }
     }
     //parent waits for children to be done
-    for(int i = 0; i < num_proc; i++)
-    {
-        wait(NULL);
-    }
+    // for(int i = 0; i < num_proc; i++)
+    // {
+    //     wait(NULL);
+    // }
     
+    //This reads all of the values recieved from the child processes
+    //and adds them together to get the final result
     for(int i = 0; i < num_proc; i ++)
     {
-        read(fds[i][0], &results[i], sizeof(long long));
+        read(fds[i][0], &results, sizeof(long long));
+        answer = answer + results;
         close(fds[i][0]);
         close(fds[i][1]);
     }
     end_time = clock();
     wait(NULL);
     total_time = (double) (end_time - start_time) / CLOCKS_PER_SEC;
-    
     printf("It took this long: %f\n", total_time);
     
-    for(int i = 0; i < num_proc; i++)
-    {
-        answer = answer + results[i];
-    }
+    //This adds all of the 
+    // for(int i = 0; i < num_proc; i++)
+    // {
+    //     answer = answer + results[i];
+    // }
 
     printf("The total sum is: %lld\n", answer);
     
+}
+
+//Opens the file the user picked
+FILE* file_picked(int num_file)
+{
+    FILE *file;
+    switch(num_file)
+    {
+        case 1:
+            file = fopen("file1.dat", "rb");
+            break;
+        case 2:
+            file = fopen("file2.dat", "rb");
+            break;
+        case 3:
+            file = fopen("file3.dat", "rb");
+            break;
+    }
+    return file;
 }
 
 //Counts the amount of lines in the file
@@ -175,7 +141,6 @@ int num_lines(void *file)
     }
     return total_lines;
 }
-
 
 //Asks the user how many processes they want to make
 //Also asks which file they want to go through
@@ -198,6 +163,7 @@ int display(int text)
     return input;
 }
 
+//Checks if the users input is valid
 int input_Check(int option)
 {
     int temp = 0;
@@ -207,13 +173,13 @@ int input_Check(int option)
         while((getchar()) != '\n');
         if(option == 1)
         {
-            if(temp <= 0 || temp == 3 || temp > 4)
+            if(temp == 1 || temp == 2 || temp == 4)
             {
-                printf("Your input is not valid\nTry again\n");
+                return temp;
             }
             else
             {
-                return temp;
+                printf("Your input is not valid\nTry again\n");
             }
         }
         else if(option == 0)
@@ -227,19 +193,5 @@ int input_Check(int option)
                 return temp;
             }
         }
-        
-        // if(temp >= 4)
-        // {
-        //     printf("Your input is not valid\nTry again\n");
-        // }
-        // else if (temp <= 0 || temp != 3 || temp > 4)
-        // {
-        //     printf("Your input is not valid\nTry again\n");
-        // }
-        // else
-        // {
-        //     break;
-        // }
     }
-    //return temp;
 }
