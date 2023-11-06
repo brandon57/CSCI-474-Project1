@@ -5,6 +5,7 @@
 #include <time.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 //Functions
 int display(int text);
@@ -14,8 +15,8 @@ FILE* file_picked(int num_file);
 
 int main()
 {
-    clock_t start_time, end_time;
-    double total_time;
+    struct timeval start_time, end_time;
+    float total_time;
     FILE *file;
     int num_proc, num_file = 0, lines_proc = 0, total_lines = 0;
 
@@ -49,7 +50,8 @@ int main()
     long long answer = 0;
     long long results = 0;
     unsigned int start, end;
-    start_time = clock();
+    gettimeofday(&start_time, NULL);
+    //start_time = clock();
     for(int i = 0; i < num_proc; i++)
     {   
         PIDS[i] = fork();
@@ -81,11 +83,6 @@ int main()
             printf("An error has occurred creating a process\n");    
         }
     }
-    //parent waits for children to be done
-    // for(int i = 0; i < num_proc; i++)
-    // {
-    //     wait(NULL);
-    // }
     
     //This reads all of the values recieved from the child processes
     //and adds them together to get the final result
@@ -96,17 +93,12 @@ int main()
         close(fds[i][0]);
         close(fds[i][1]);
     }
-    end_time = clock();
+    gettimeofday(&end_time, NULL);
+    //end_time = clock();
     wait(NULL);
-    total_time = (double) (end_time - start_time) / CLOCKS_PER_SEC;
-    printf("It took this long: %f\n", total_time);
-    
-    //This adds all of the 
-    // for(int i = 0; i < num_proc; i++)
-    // {
-    //     answer = answer + results[i];
-    // }
 
+    total_time = (float)(((end_time.tv_sec - start_time.tv_sec) * 1000000 + end_time.tv_usec - start_time.tv_usec) / 1000);
+    printf("It took this long: %.3f\n", total_time);
     printf("The total sum is: %lld\n", answer);
     
 }
