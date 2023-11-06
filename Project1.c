@@ -20,7 +20,7 @@ int main()
     FILE *file;
     int num_proc, num_file = 0, lines_proc = 0, total_lines = 0;
 
-    //This is the part of the code where the 
+    //this is where we get 
     num_proc = display(1);
     num_file = display(2);
 
@@ -51,7 +51,6 @@ int main()
     long long results = 0;
     unsigned int start, end;
     gettimeofday(&start_time, NULL);
-    //start_time = clock();
     for(int i = 0; i < num_proc; i++)
     {   
         PIDS[i] = fork();
@@ -94,11 +93,10 @@ int main()
         close(fds[i][1]);
     }
     gettimeofday(&end_time, NULL);
-    //end_time = clock();
     wait(NULL);
 
-    total_time = (float)(((end_time.tv_sec - start_time.tv_sec) * 1000000 + end_time.tv_usec - start_time.tv_usec) / 1000);
-    printf("It took this long: %.3f\n", total_time);
+    total_time = ((float)((end_time.tv_sec - start_time.tv_sec) * 1000000 + end_time.tv_usec - start_time.tv_usec) / 1000);
+    printf("It took this long: %.3f ms\n", total_time);
     printf("The total sum is: %lld\n", answer);
     
 }
