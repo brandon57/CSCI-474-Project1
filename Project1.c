@@ -18,7 +18,7 @@ int main()
     struct timeval start_time, end_time;
     float total_time;
     FILE *file;
-    int num_proc, num_file = 0, lines_proc = 0, total_lines = 0;
+    int num_proc = 0, num_file = 0, lines_proc = 0, total_lines = 0;
 
     //this is where we get 
     num_proc = display(1);
@@ -49,8 +49,8 @@ int main()
     long long proc_result = 0;
     long long answer = 0;
     long long results = 0;
-    unsigned int start, end;
-    gettimeofday(&start_time, NULL);
+    unsigned int start;
+    gettimeofday(&start_time, NULL); //Starts timer
     for(int i = 0; i < num_proc; i++)
     {   
         PIDS[i] = fork();
@@ -59,7 +59,6 @@ int main()
             printf("Process %d is starting\n", i + 1);
             file = file_picked(num_file);
             start = (lines_proc * i * 5);
-            end = start + (lines_proc * 5);
             int temp = 0;
             
             fseek(file, start, SEEK_SET);
@@ -77,9 +76,10 @@ int main()
             fclose(file);
             _exit(0);
         }
-        else if(PIDS[i] == -1)
+        else if(PIDS[i] == -1) //This is incase a process couldn't be created
         {
-            printf("An error has occurred creating a process\n");    
+            printf("An error has occurred creating process %d\n", i+1);
+            _exit(0);
         }
     }
     
@@ -92,10 +92,10 @@ int main()
         close(fds[i][0]);
         close(fds[i][1]);
     }
-    gettimeofday(&end_time, NULL);
+    gettimeofday(&end_time, NULL); //Ends timer
     wait(NULL);
 
-    total_time = ((float)((end_time.tv_sec - start_time.tv_sec) * 1000000 + end_time.tv_usec - start_time.tv_usec) / 1000);
+    total_time = ((float)((end_time.tv_sec - start_time.tv_sec) * 1000000 + end_time.tv_usec - start_time.tv_usec) / 1000); //This calculates the time it took
     printf("It took this long: %.3f ms\n", total_time);
     printf("The total sum is: %lld\n", answer);
     
