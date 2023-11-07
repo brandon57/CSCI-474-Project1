@@ -36,8 +36,6 @@ int main()
     fclose(file);
     printf("There are %d lines in the file you chose\n", total_lines);
 
-    //This part of the code is where the main process sets up the processes
-
     //Creates the exact number of pipes needed
     int fds[num_proc][2];
     for(int i = 0; i < num_proc; i++)
