@@ -28,12 +28,12 @@ It'll then ask you for your password and then ask if you want to continue.
 
 Once you do that GCC will start installing.
 
-## Compiling program
+## Compiling the program
 Now that gcc is installed you need to navigate to where ever you downloaded the program. Once you've navigated to where the program is, you'll need to compile the file.
 
 * Running this command will compile it:
 ```
-gcc project2.c -o project1.out
+gcc project1.c -o project1.out
 ```
 After running the command a new file will be created. This is the file that we will run.
 
