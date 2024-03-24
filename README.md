@@ -1,6 +1,6 @@
 # CSCI-474-Project1
 
-This project is about creating a multiprocess program that uses fork and pipe to read a file
+This project is about creating a multiprocess program that uses fork and pipe to read a file.
 
 # These are the requirments for the project
 
