@@ -43,5 +43,3 @@ Now to run the program you can use this command:
 ./project1.out
 ```
 Using this command will then run the program.
-
-# How to use
